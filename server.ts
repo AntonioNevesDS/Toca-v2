@@ -86,22 +86,44 @@ async function startServer() {
   });
 
   app.post("/api/pets", authenticateToken, isAdmin, (req, res) => {
-    const { nome, tipo, raca, porte, imagemUrl, descricao } = req.body;
-    const stmt = db.prepare("INSERT INTO pets (nome, tipo, raca, porte, imagemUrl, descricao) VALUES (?, ?, ?, ?, ?, ?)");
-    const result = stmt.run(nome, tipo, raca, porte, imagemUrl, descricao);
+    const { nome, tipo, raca, porte, idade, cor, pelo, sexo, imagemUrl, descricao } = req.body;
+    const stmt = db.prepare("INSERT INTO pets (nome, tipo, raca, porte, idade, cor, pelo, sexo, imagemUrl, descricao) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)");
+    const result = stmt.run(nome, tipo, raca, porte, idade, cor, pelo, sexo, imagemUrl, descricao);
     res.status(201).json({ id: result.lastInsertRowid });
   });
 
   app.put("/api/pets/:id", authenticateToken, isAdmin, (req, res) => {
-    const { nome, tipo, raca, porte, imagemUrl, descricao, status } = req.body;
-    const stmt = db.prepare("UPDATE pets SET nome = ?, tipo = ?, raca = ?, porte = ?, imagemUrl = ?, descricao = ?, status = ? WHERE id = ?");
-    stmt.run(nome, tipo, raca, porte, imagemUrl, descricao, status, req.params.id);
+    const { nome, tipo, raca, porte, idade, cor, pelo, sexo, imagemUrl, descricao, status } = req.body;
+    const stmt = db.prepare("UPDATE pets SET nome = ?, tipo = ?, raca = ?, porte = ?, idade = ?, cor = ?, pelo = ?, sexo = ?, imagemUrl = ?, descricao = ?, status = ? WHERE id = ?");
+    stmt.run(nome, tipo, raca, porte, idade, cor, pelo, sexo, imagemUrl, descricao, status, req.params.id);
     res.json({ message: "Pet atualizado com sucesso!" });
   });
 
   app.delete("/api/pets/:id", authenticateToken, isAdmin, (req, res) => {
     db.prepare("DELETE FROM pets WHERE id = ?").run(req.params.id);
     res.json({ message: "Pet removido com sucesso!" });
+  });
+
+  // Breeds Routes
+  app.get("/api/breeds", (req, res) => {
+    const breeds = db.prepare("SELECT * FROM breeds ORDER BY name ASC").all();
+    res.json(breeds);
+  });
+
+  app.post("/api/breeds", authenticateToken, isAdmin, (req, res) => {
+    const { name, type } = req.body;
+    try {
+      const stmt = db.prepare("INSERT INTO breeds (name, type) VALUES (?, ?)");
+      const result = stmt.run(name, type);
+      res.status(201).json({ id: result.lastInsertRowid });
+    } catch (error) {
+      res.status(400).json({ error: "Raça já cadastrada." });
+    }
+  });
+
+  app.delete("/api/breeds/:id", authenticateToken, isAdmin, (req, res) => {
+    db.prepare("DELETE FROM breeds WHERE id = ?").run(req.params.id);
+    res.json({ message: "Raça removida com sucesso!" });
   });
 
   // Events Routes

@@ -10,23 +10,29 @@ interface AdminProps {
 }
 
 export default function Admin({ user }: AdminProps) {
-  const [activeTab, setActiveTab] = useState<'pets' | 'denuncias' | 'voluntarios' | 'eventos'>('pets');
+  const [activeTab, setActiveTab] = useState<'pets' | 'denuncias' | 'voluntarios' | 'eventos' | 'racas'>('pets');
   const [pets, setPets] = useState<Pet[]>([]);
   const [denuncias, setDenuncias] = useState<Denuncia[]>([]);
   const [voluntarios, setVoluntarios] = useState<Voluntario[]>([]);
   const [eventos, setEventos] = useState<Event[]>([]);
+  const [breeds, setBreeds] = useState<{ id: number; name: string; type: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPetModalOpen, setIsPetModalOpen] = useState(false);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
+  const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
   const navigate = useNavigate();
 
   // Form states
   const [newPet, setNewPet] = useState({
-    nome: '', tipo: 'Cachorro', porte: 'Médio', idade: '', 
+    nome: '', tipo: 'Cachorro', raca: 'Vira-lata (SRD)', porte: 'Médio', idade: 'Adulto', 
+    cor: '', pelo: 'Curto', sexo: 'Macho',
     descricao: '', imagemUrl: '', status: 'Disponível'
   });
   const [newEvent, setNewEvent] = useState({
     titulo: '', descricao: '', data: '', local: '', imagemUrl: ''
+  });
+  const [newBreed, setNewBreed] = useState({
+    name: '', type: 'Cachorro'
   });
 
   useEffect(() => {
@@ -38,16 +44,18 @@ export default function Admin({ user }: AdminProps) {
     const fetchData = async () => {
       setLoading(true);
       try {
-        const [petsData, denunciasData, voluntariosData, eventosData] = await Promise.all([
+        const [petsData, denunciasData, voluntariosData, eventosData, breedsData] = await Promise.all([
           api.getPets(),
           api.getDenuncias(user.token!),
           api.getVolunteers(user.token!),
-          api.getEvents()
+          api.getEvents(),
+          api.getBreeds()
         ]);
         setPets(petsData);
         setDenuncias(denunciasData);
         setVoluntarios(voluntariosData);
         setEventos(eventosData);
+        setBreeds(breedsData);
       } catch (err) {
         console.error(err);
       } finally {
@@ -63,11 +71,39 @@ export default function Admin({ user }: AdminProps) {
     try {
       await api.createPet(newPet, user!.token!);
       setIsPetModalOpen(false);
-      setNewPet({ nome: '', tipo: 'Cachorro', porte: 'Médio', idade: '', descricao: '', imagemUrl: '', status: 'Disponível' });
+      setNewPet({ 
+        nome: '', tipo: 'Cachorro', raca: 'Vira-lata (SRD)', porte: 'Médio', idade: 'Adulto', 
+        cor: '', pelo: 'Curto', sexo: 'Macho',
+        descricao: '', imagemUrl: '', status: 'Disponível' 
+      });
       const updatedPets = await api.getPets();
       setPets(updatedPets);
     } catch (err) {
       alert('Erro ao cadastrar pet');
+    }
+  };
+
+  const handleAddBreed = async (e: React.FormEvent) => {
+    e.preventDefault();
+    try {
+      await api.createBreed(newBreed, user!.token!);
+      setIsBreedModalOpen(false);
+      setNewBreed({ name: '', type: 'Cachorro' });
+      const updatedBreeds = await api.getBreeds();
+      setBreeds(updatedBreeds);
+    } catch (err) {
+      alert('Erro ao cadastrar raça');
+    }
+  };
+
+  const handleDeleteBreed = async (id: number) => {
+    if (!confirm('Deseja realmente excluir esta raça?')) return;
+    try {
+      await api.deleteBreed(id, user!.token!);
+      const updatedBreeds = await api.getBreeds();
+      setBreeds(updatedBreeds);
+    } catch (err) {
+      alert('Erro ao excluir raça');
     }
   };
 
@@ -101,6 +137,12 @@ export default function Admin({ user }: AdminProps) {
             className="bg-[#7956a6] text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-[#6a1b9a] transition-colors"
           >
             <Plus size={20} /> Novo Pet
+          </button>
+          <button 
+            onClick={() => setIsBreedModalOpen(true)}
+            className="bg-blue-600 text-white px-6 py-2 rounded-xl font-bold flex items-center gap-2 hover:bg-blue-700 transition-colors"
+          >
+            <Plus size={20} /> Nova Raça
           </button>
           <button 
             onClick={() => setIsEventModalOpen(true)}
@@ -162,6 +204,7 @@ export default function Admin({ user }: AdminProps) {
             { id: 'denuncias', label: 'Denúncias', icon: ShieldAlert },
             { id: 'voluntarios', label: 'Voluntários', icon: Users },
             { id: 'eventos', label: 'Eventos', icon: Calendar },
+            { id: 'racas', label: 'Raças', icon: PawPrint },
           ].map(tab => (
             <button
               key={tab.id}
@@ -207,11 +250,17 @@ export default function Admin({ user }: AdminProps) {
                         <th className="pb-4 px-4">Contato</th>
                         <th className="pb-4 px-4 text-right">Ações</th>
                       </>
-                    ) : (
+                    ) : activeTab === 'eventos' ? (
                       <>
                         <th className="pb-4 px-4">Data</th>
                         <th className="pb-4 px-4">Título</th>
                         <th className="pb-4 px-4">Local</th>
+                        <th className="pb-4 px-4 text-right">Ações</th>
+                      </>
+                    ) : (
+                      <>
+                        <th className="pb-4 px-4">Nome</th>
+                        <th className="pb-4 px-4">Tipo</th>
                         <th className="pb-4 px-4 text-right">Ações</th>
                       </>
                     )}
@@ -224,7 +273,7 @@ export default function Admin({ user }: AdminProps) {
                         <img src={pet.imagemUrl} alt="" className="w-12 h-12 rounded-xl object-cover" />
                       </td>
                       <td className="py-4 px-4 font-bold text-[#18212f]">{pet.nome}</td>
-                      <td className="py-4 px-4 text-gray-500">{pet.tipo}</td>
+                      <td className="py-4 px-4 text-gray-500">{pet.tipo} - {pet.raca}</td>
                       <td className="py-4 px-4">
                         <span className={`px-3 py-1 rounded-full text-xs font-bold ${
                           pet.status === 'Disponível' ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'
@@ -283,6 +332,21 @@ export default function Admin({ user }: AdminProps) {
                       </td>
                     </tr>
                   ))}
+
+                  {activeTab === 'racas' && breeds.map(breed => (
+                    <tr key={breed.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="py-4 px-4 font-bold text-[#18212f]">{breed.name}</td>
+                      <td className="py-4 px-4 text-gray-500">{breed.type}</td>
+                      <td className="py-4 px-4 text-right">
+                        <button 
+                          onClick={() => handleDeleteBreed(breed.id)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                        >
+                          <Trash2 size={18} />
+                        </button>
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -308,7 +372,7 @@ export default function Admin({ user }: AdminProps) {
                   <X size={24} />
                 </button>
               </div>
-              <form onSubmit={handleAddPet} className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6">
+              <form onSubmit={handleAddPet} className="p-8 grid grid-cols-1 md:grid-cols-2 gap-6 max-h-[70vh] overflow-y-auto">
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-700">Nome do Pet</label>
                   <input 
@@ -323,34 +387,81 @@ export default function Admin({ user }: AdminProps) {
                   <label className="text-sm font-bold text-gray-700">Tipo</label>
                   <select 
                     value={newPet.tipo}
-                    onChange={e => setNewPet({...newPet, tipo: e.target.value})}
+                    onChange={e => setNewPet({...newPet, tipo: e.target.value as any})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
                   >
-                    <option>Cachorro</option>
-                    <option>Gato</option>
-                    <option>Outro</option>
+                    <option value="Cachorro">Cachorro</option>
+                    <option value="Gato">Gato</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Raça</label>
+                  <select 
+                    value={newPet.raca}
+                    onChange={e => setNewPet({...newPet, raca: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
+                  >
+                    <option value="Vira-lata (SRD)">Vira-lata (SRD)</option>
+                    {breeds.filter(b => b.type === newPet.tipo).map(b => (
+                      <option key={b.id} value={b.name}>{b.name}</option>
+                    ))}
                   </select>
                 </div>
                 <div className="space-y-2">
                   <label className="text-sm font-bold text-gray-700">Porte</label>
                   <select 
                     value={newPet.porte}
-                    onChange={e => setNewPet({...newPet, porte: e.target.value})}
+                    onChange={e => setNewPet({...newPet, porte: e.target.value as any})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
                   >
-                    <option>Pequeno</option>
-                    <option>Médio</option>
-                    <option>Grande</option>
+                    <option value="Pequeno">Pequeno</option>
+                    <option value="Médio">Médio</option>
+                    <option value="Grande">Grande</option>
                   </select>
                 </div>
                 <div className="space-y-2">
-                  <label className="text-sm font-bold text-gray-700">Idade Aproximada</label>
+                  <label className="text-sm font-bold text-gray-700">Idade</label>
+                  <select 
+                    value={newPet.idade}
+                    onChange={e => setNewPet({...newPet, idade: e.target.value as any})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
+                  >
+                    <option value="Filhote">Filhote</option>
+                    <option value="Adulto">Adulto</option>
+                    <option value="Idoso">Idoso</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Sexo</label>
+                  <select 
+                    value={newPet.sexo}
+                    onChange={e => setNewPet({...newPet, sexo: e.target.value as any})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
+                  >
+                    <option value="Macho">Macho</option>
+                    <option value="Fêmea">Fêmea</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Pelo</label>
+                  <select 
+                    value={newPet.pelo}
+                    onChange={e => setNewPet({...newPet, pelo: e.target.value as any})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
+                  >
+                    <option value="Curto">Curto</option>
+                    <option value="Médio">Médio</option>
+                    <option value="Longo">Longo</option>
+                  </select>
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Cor</label>
                   <input 
                     required
-                    value={newPet.idade}
-                    onChange={e => setNewPet({...newPet, idade: e.target.value})}
+                    value={newPet.cor}
+                    onChange={e => setNewPet({...newPet, cor: e.target.value})}
                     className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
-                    placeholder="Ex: 2 anos"
+                    placeholder="Ex: Marrom e Branco"
                   />
                 </div>
                 <div className="md:col-span-2 space-y-2">
@@ -378,6 +489,55 @@ export default function Admin({ user }: AdminProps) {
                     Cadastrar Pet
                   </button>
                 </div>
+              </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Breed Modal */}
+      <AnimatePresence>
+        {isBreedModalOpen && (
+          <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="bg-blue-600 p-6 text-white flex justify-between items-center">
+                <h2 className="text-2xl font-bold flex items-center gap-2">
+                  <PawPrint /> Nova Raça
+                </h2>
+                <button onClick={() => setIsBreedModalOpen(false)} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+              <form onSubmit={handleAddBreed} className="p-8 space-y-6">
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Nome da Raça</label>
+                  <input 
+                    required
+                    value={newBreed.name}
+                    onChange={e => setNewBreed({...newBreed, name: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-blue-600 outline-none"
+                    placeholder="Ex: Labrador"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Espécie</label>
+                  <select 
+                    value={newBreed.type}
+                    onChange={e => setNewBreed({...newBreed, type: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-blue-600 outline-none"
+                  >
+                    <option value="Cachorro">Cachorro</option>
+                    <option value="Gato">Gato</option>
+                  </select>
+                </div>
+                <button type="submit" className="w-full bg-blue-600 text-white py-4 rounded-xl font-bold text-lg hover:bg-blue-700 transition-colors">
+                  Cadastrar Raça
+                </button>
               </form>
             </motion.div>
           </div>

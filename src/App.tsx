@@ -42,7 +42,11 @@ export default function App() {
   return (
     <Router>
       <div className="min-h-screen bg-[#F5F5F5] flex flex-col font-sans">
-        <Navbar user={user} onLogout={handleLogout} onOpenDonation={() => setIsDonationOpen(true)} />
+        <Navbar 
+          user={user} 
+          onLogout={handleLogout} 
+          onOpenDonation={() => setIsDonationOpen(true)} 
+        />
         
         <main className="flex-grow">
           <AnimatePresence mode="wait">

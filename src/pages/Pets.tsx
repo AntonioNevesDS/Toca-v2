@@ -1,24 +1,68 @@
 import React, { useState, useEffect } from 'react';
 import { motion } from 'motion/react';
-import { Search, Filter, PawPrint, Heart } from 'lucide-react';
+import { Search, Filter as FilterIcon, PawPrint, Heart } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { api } from '../services/api';
 import { Pet } from '../types';
+import PetFilterModal from '../components/PetFilterModal';
 
 export default function Pets() {
   const [pets, setPets] = useState<Pet[]>([]);
-  const [filter, setFilter] = useState('todos');
+  const [loading, setLoading] = useState(true);
   const [search, setSearch] = useState('');
+  const [isFilterModalOpen, setIsFilterModalOpen] = useState(false);
+  const [filters, setFilters] = useState({
+    tipo: 'todos',
+    raca: 'todas',
+    porte: 'todos',
+    idade: 'todos',
+    pelo: 'todos',
+    sexo: 'todos',
+    cor: ''
+  });
 
   useEffect(() => {
-    api.getPets().then(setPets);
+    fetchPets();
   }, []);
 
+  const fetchPets = async () => {
+    try {
+      const data = await api.getPets();
+      setPets(data);
+    } catch (error) {
+      console.error("Erro ao buscar pets:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const filteredPets = pets.filter(pet => {
-    const matchesFilter = filter === 'todos' || pet.tipo === filter;
-    const matchesSearch = pet.nome.toLowerCase().includes(search.toLowerCase());
-    return matchesFilter && matchesSearch;
+    const matchesSearch = pet.nome.toLowerCase().includes(search.toLowerCase()) ||
+                         pet.descricao.toLowerCase().includes(search.toLowerCase());
+    const matchesTipo = filters.tipo === 'todos' || pet.tipo === filters.tipo;
+    const matchesRaca = filters.raca === 'todas' || pet.raca === filters.raca;
+    const matchesPorte = filters.porte === 'todos' || pet.porte === filters.porte;
+    const matchesIdade = filters.idade === 'todos' || pet.idade === filters.idade;
+    const matchesPelo = filters.pelo === 'todos' || pet.pelo === filters.pelo;
+    const matchesSexo = filters.sexo === 'todos' || pet.sexo === filters.sexo;
+    const matchesCor = !filters.cor || pet.cor?.toLowerCase().includes(filters.cor.toLowerCase());
+
+    return matchesSearch && matchesTipo && matchesRaca && matchesPorte && matchesIdade && matchesPelo && matchesSexo && matchesCor;
   });
+
+  const activeFiltersCount = Object.entries(filters).filter(([key, value]) => {
+    if (key === 'cor') return value !== '';
+    if (key === 'raca') return value !== 'todas';
+    return value !== 'todos';
+  }).length;
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center min-h-[60vh]">
+        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#7956a6]"></div>
+      </div>
+    );
+  }
 
   return (
     <motion.div
@@ -34,31 +78,39 @@ export default function Pets() {
         </p>
       </div>
 
-      {/* Filters */}
-      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-wrap gap-4 items-center justify-between">
-        <div className="relative flex-grow max-w-md">
+      {/* Search and Filter Button */}
+      <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 flex flex-col md:flex-row gap-4 items-center">
+        <div className="relative flex-grow w-full">
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-400" size={20} />
           <input
             type="text"
-            placeholder="Pesquisar por nome..."
+            placeholder="Pesquisar por nome ou descrição..."
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             className="w-full pl-12 pr-4 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 ring-[#7956a6]"
           />
         </div>
         
-        <div className="flex gap-3">
-          <select
-            value={filter}
-            onChange={(e) => setFilter(e.target.value)}
-            className="px-6 py-3 rounded-xl border border-gray-200 focus:outline-none focus:ring-2 ring-[#7956a6] bg-white font-semibold text-gray-700"
-          >
-            <option value="todos">Todos os Pets</option>
-            <option value="Cachorro">Cachorros</option>
-            <option value="Gato">Gatos</option>
-          </select>
-        </div>
+        <button
+          onClick={() => setIsFilterModalOpen(true)}
+          className="flex items-center gap-2 px-6 py-3 rounded-xl border border-gray-200 font-bold text-gray-700 hover:bg-gray-50 transition-colors relative w-full md:w-auto justify-center"
+        >
+          <FilterIcon size={20} className="text-[#7956a6]" />
+          Filtros Avançados
+          {activeFiltersCount > 0 && (
+            <span className="absolute -top-2 -right-2 bg-[#7956a6] text-white text-xs w-6 h-6 rounded-full flex items-center justify-center border-2 border-white">
+              {activeFiltersCount}
+            </span>
+          )}
+        </button>
       </div>
+
+      <PetFilterModal
+        isOpen={isFilterModalOpen}
+        onClose={() => setIsFilterModalOpen(false)}
+        onApply={setFilters}
+        currentFilters={filters}
+      />
 
       {/* Grid */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">

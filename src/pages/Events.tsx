@@ -1,4 +1,5 @@
 import React, { useEffect, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { motion } from 'motion/react';
 import { Calendar as CalendarIcon, MapPin, Clock } from 'lucide-react';
 import { api } from '../services/api';
@@ -26,12 +27,12 @@ export default function Events() {
             e só são possíveis graças ao apoio e às doações de pessoas que acreditam nessa causa.
           </p>
           <div className="flex flex-wrap gap-4">
-            <a href="/pets" className="bg-[#FFCC00] text-[#18212f] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform">
+            <Link to="/pets" className="bg-[#FFCC00] text-[#18212f] px-8 py-3 rounded-xl font-bold hover:scale-105 transition-transform">
               Ver Pets Disponíveis
-            </a>
-            <button className="bg-[#7956a6] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#6a1b9a] transition-colors">
-              Fazer uma doação
-            </button>
+            </Link>
+            <Link to="/pets" className="bg-[#7956a6] text-white px-8 py-3 rounded-xl font-bold hover:bg-[#6a1b9a] transition-colors">
+              Fazer uma adoção
+            </Link>
           </div>
         </div>
         <div className="relative">

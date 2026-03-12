@@ -9,7 +9,24 @@ export default function PetDetails() {
   const { id } = useParams<{ id: string }>();
   const [pet, setPet] = useState<Pet | null>(null);
   const [loading, setLoading] = useState(true);
+  const [adopting, setAdopting] = useState(false);
   const navigate = useNavigate();
+
+  const handleAdopt = () => {
+    const savedUser = localStorage.getItem('usuarioLogado');
+    if (!savedUser) {
+      alert('Você precisa estar logado para iniciar um processo de adoção.');
+      navigate('/login');
+      return;
+    }
+
+    setAdopting(true);
+    // Simulate adoption process
+    setTimeout(() => {
+      setAdopting(false);
+      alert(`Obrigado pelo seu interesse em adotar ${pet?.nome}! Nossa equipe entrará em contato em breve para os próximos passos.`);
+    }, 1500);
+  };
 
   useEffect(() => {
     if (id) {
@@ -67,26 +84,47 @@ export default function PetDetails() {
               <span className="bg-blue-50 text-blue-700 px-4 py-1 rounded-full text-sm font-bold border border-blue-200">
                 {pet.raca}
               </span>
+              <span className="bg-purple-50 text-purple-700 px-4 py-1 rounded-full text-sm font-bold border border-purple-200">
+                {pet.sexo}
+              </span>
             </div>
           </div>
 
-          <div className="grid grid-cols-2 gap-4">
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-              <div className="bg-[#7956a6]/10 p-3 rounded-xl">
-                <Heart className="text-[#7956a6]" size={24} />
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-2">
+              <div className="bg-[#7956a6]/10 p-2 rounded-xl">
+                <Heart className="text-[#7956a6]" size={20} />
               </div>
               <div>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Porte</p>
-                <p className="font-bold text-[#18212f]">{pet.porte}</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Porte</p>
+                <p className="font-bold text-[#18212f] text-sm">{pet.porte}</p>
               </div>
             </div>
-            <div className="bg-white p-6 rounded-2xl border border-gray-100 shadow-sm flex items-center gap-4">
-              <div className="bg-[#7956a6]/10 p-3 rounded-xl">
-                <Calendar className="text-[#7956a6]" size={24} />
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-2">
+              <div className="bg-[#7956a6]/10 p-2 rounded-xl">
+                <Calendar className="text-[#7956a6]" size={20} />
               </div>
               <div>
-                <p className="text-xs text-gray-500 font-bold uppercase tracking-wider">Idade</p>
-                <p className="font-bold text-[#18212f]">Adulto</p>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Idade</p>
+                <p className="font-bold text-[#18212f] text-sm">{pet.idade}</p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-2">
+              <div className="bg-[#7956a6]/10 p-2 rounded-xl">
+                <PawPrint className="text-[#7956a6]" size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Pelo</p>
+                <p className="font-bold text-[#18212f] text-sm">{pet.pelo}</p>
+              </div>
+            </div>
+            <div className="bg-white p-4 rounded-2xl border border-gray-100 shadow-sm flex flex-col items-center text-center gap-2">
+              <div className="bg-[#7956a6]/10 p-2 rounded-xl">
+                <Info className="text-[#7956a6]" size={20} />
+              </div>
+              <div>
+                <p className="text-[10px] text-gray-500 font-bold uppercase tracking-wider">Cor</p>
+                <p className="font-bold text-[#18212f] text-sm">{pet.cor}</p>
               </div>
             </div>
           </div>
@@ -106,8 +144,12 @@ export default function PetDetails() {
               O processo de adoção é simples, mas requer responsabilidade. 
               Clique no botão abaixo para iniciar sua jornada com {pet.nome}.
             </p>
-            <button className="w-full bg-[#FFCC00] text-[#18212f] py-4 rounded-2xl font-bold text-xl hover:scale-[1.02] transition-transform">
-              Iniciar Processo de Adoção
+            <button 
+              onClick={handleAdopt}
+              disabled={adopting}
+              className="w-full bg-[#FFCC00] text-[#18212f] py-4 rounded-2xl font-bold text-xl hover:scale-[1.02] transition-transform disabled:opacity-50 disabled:scale-100"
+            >
+              {adopting ? 'Processando...' : 'Iniciar Processo de Adoção'}
             </button>
           </div>
         </div>

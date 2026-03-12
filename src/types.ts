@@ -21,11 +21,15 @@ export interface User {
 export interface Pet {
   id: number;
   nome: string;
-  tipo: string;
+  tipo: 'Cachorro' | 'Gato';
   raca: string;
-  porte: string;
+  porte: 'Pequeno' | 'Médio' | 'Grande';
+  idade: 'Filhote' | 'Adulto' | 'Idoso';
+  cor: string;
+  pelo: 'Curto' | 'Médio' | 'Longo';
+  sexo: 'Macho' | 'Fêmea';
   imagemUrl: string;
-  status: string;
+  status: 'Disponível' | 'Adotado' | 'Em Processo';
   descricao: string;
 }
 

@@ -164,5 +164,32 @@ export const api = {
     });
     if (!res.ok) throw new Error((await res.json()).error);
     return res.json();
+  },
+
+  async getBreeds(): Promise<{ id: number; name: string; type: string }[]> {
+    const res = await fetch(`${API_URL}/breeds`);
+    return res.json();
+  },
+
+  async createBreed(data: { name: string; type: string }, token: string) {
+    const res = await fetch(`${API_URL}/breeds`, {
+      method: 'POST',
+      headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+      },
+      body: JSON.stringify(data),
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    return res.json();
+  },
+
+  async deleteBreed(id: number, token: string) {
+    const res = await fetch(`${API_URL}/breeds/${id}`, {
+      method: 'DELETE',
+      headers: { 'Authorization': `Bearer ${token}` },
+    });
+    if (!res.ok) throw new Error((await res.json()).error);
+    return res.json();
   }
 };
