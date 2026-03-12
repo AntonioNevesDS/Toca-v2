@@ -1,0 +1,7 @@
+{
+  "name": "Toca dos Peludos",
+  "description": "Plataforma completa para a ONG Toca dos Peludos, facilitando a adoção de animais, denúncias de maus-tratos, gestão de eventos e doações.",
+  "requestFramePermissions": [
+    "geolocation"
+  ]
+}
