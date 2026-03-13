@@ -95,6 +95,7 @@ export const api = {
     return res.json();
   },
 
+  //  voluntario
   async createVolunteer(data: any) {
     const res = await fetch(`${API_URL}/voluntarios`, {
       method: 'POST',
@@ -126,6 +127,7 @@ export const api = {
     return res.json();
   },
 
+  //registro
   async register(data: any) {
     const res = await fetch(`${API_URL}/auth/register`, {
       method: 'POST',
