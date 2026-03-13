@@ -60,7 +60,7 @@ export default function Sobre() {
           Seja como adotante, voluntário ou doador, sua ajuda é fundamental para continuarmos salvando vidas.
         </p>
         <div className="flex flex-wrap justify-center gap-4">
-          <button className="bg-[#FFCC00] text-[#18212f] px-10 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform">
+          <button to="" className="bg-[#FFCC00] text-[#18212f] px-10 py-4 rounded-xl font-bold text-lg hover:scale-105 transition-transform">
             Quero Ajudar
           </button>
         </div>

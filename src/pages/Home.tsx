@@ -23,7 +23,7 @@ export default function Home({ onOpenDonation }: HomeProps) {
       exit={{ opacity: 0 }}
       className="space-y-16 pb-16"
     >
-      {/* Hero Section */}
+      {/* cabeçalho */}
       <section className="relative h-[500px] overflow-hidden">
         <img 
           src="https://images.unsplash.com/photo-1450778869180-41d0601e046e?auto=format&fit=crop&q=80&w=1920" 
@@ -42,7 +42,7 @@ export default function Home({ onOpenDonation }: HomeProps) {
                 Encontre Seu Novo Melhor Amigo e Adote um Animal
               </h1>
               <p className="text-xl opacity-90">
-                Mais de 12.000 Histórias Salvas. Faça parte da nossa missão.
+                Mais de 12.000 Histórias Salvas. Cada adoção é um recomeço
               </p>
               <div className="flex flex-wrap gap-4">
                 <Link to="/pets" className="bg-[#FFCC00] text-[#18212f] px-8 py-3 rounded-xl font-bold text-lg hover:scale-105 transition-transform">
@@ -57,7 +57,7 @@ export default function Home({ onOpenDonation }: HomeProps) {
         </div>
       </section>
 
-      {/* Featured Pets */}
+      {/* area pets */}
       <section className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-end mb-8">
           <div>
@@ -101,7 +101,7 @@ export default function Home({ onOpenDonation }: HomeProps) {
         </div>
       </section>
 
-      {/* Donation Section */}
+      {/* docação */}
       <section className="bg-[#7956a6] py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
@@ -146,10 +146,10 @@ export default function Home({ onOpenDonation }: HomeProps) {
                   <div className="bg-[#FFCC00] p-3 rounded-full">
                     <Heart className="text-[#7956a6]" />
                   </div>
-                  <div>
+                  {/* <div>
                     <p className="font-bold text-[#18212f]">Doações Recentes</p>
                     <p className="text-sm text-gray-500">R$ 1.250,00 hoje</p>
-                  </div>
+                  </div> */}
                 </div>
               </div>
             </div>

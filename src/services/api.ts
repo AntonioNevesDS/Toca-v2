@@ -2,28 +2,28 @@ import { Pet, Event, User } from '../types';
 
 const API_URL = '/api';
 
-// Esse arquivo é como um catálogo de endereços: ele diz pro site como falar com o servidor (backend)
+// comuinicação do site com a API
 export const api = {
-  // Pega a lista de todos os bichinhos
+  //lista todos os animais
   async getPets(): Promise<Pet[]> {
     const res = await fetch(`${API_URL}/pets`);
     return res.json();
   },
 
-  // Pega os detalhes de um bichinho só, usando o ID dele
+  //detalhes do animal
   async getPet(id: string): Promise<Pet> {
     const res = await fetch(`${API_URL}/pets/${id}`);
     if (!res.ok) throw new Error("Pet não encontrado");
     return res.json();
   },
 
-  // Cria um novo bichinho no sistema
+  //cria um novo animal
   async createPet(data: any, token: string) {
     const res = await fetch(`${API_URL}/pets`, {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/json',
-        'Authorization': `Bearer ${token}` // O token é como um crachá de autorização
+        'Authorization': `Bearer ${token}` //token
       },
       body: JSON.stringify(data),
     });
@@ -31,7 +31,7 @@ export const api = {
     return res.json();
   },
 
-  // Atualiza os dados de um bichinho que já existe
+  //atualiza os dados do animal
   async updatePet(id: number, data: any, token: string) {
     const res = await fetch(`${API_URL}/pets/${id}`, {
       method: 'PUT',
@@ -45,7 +45,7 @@ export const api = {
     return res.json();
   },
 
-  // Apaga um bichinho do sistema (cuidado!)
+  //apaga o animal
   async deletePet(id: number, token: string) {
     const res = await fetch(`${API_URL}/pets/${id}`, {
       method: 'DELETE',

@@ -21,7 +21,7 @@ export default function PetDetails() {
     }
 
     setAdopting(true);
-    // Simulate adoption process
+    // simula adocao
     setTimeout(() => {
       setAdopting(false);
       alert(`Obrigado pelo seu interesse em adotar ${pet?.nome}! Nossa equipe entrará em contato em breve para os próximos passos.`);
@@ -54,7 +54,7 @@ export default function PetDetails() {
       </button>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-12">
-        {/* Image Gallery */}
+        {/* galeria de imagens */}
         <div className="space-y-4">
           <motion.img 
             initial={{ scale: 0.9, opacity: 0 }}

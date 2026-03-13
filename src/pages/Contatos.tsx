@@ -57,10 +57,10 @@ export default function Contatos() {
           <div className="bg-[#7956a6] p-8 rounded-3xl text-white space-y-6">
             <h3 className="text-2xl font-bold">Redes Sociais</h3>
             <div className="flex gap-4">
-              <a href="#" className="bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-colors">
+              <a href="https://www.instagram.com/toca_dos_peludos/" className="bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-colors">
                 <Instagram size={32} />
               </a>
-              <a href="#" className="bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-colors">
+              <a href="https://www.facebook.com/tocadospeludos/?locale=pt_BR" className="bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-colors">
                 <Facebook size={32} />
               </a>
               <a href="#" className="bg-white/10 p-4 rounded-2xl hover:bg-white/20 transition-colors">
@@ -72,7 +72,7 @@ export default function Contatos() {
 
         <div className="h-[500px] rounded-3xl overflow-hidden shadow-xl border-8 border-white">
           <iframe 
-            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3657.1975!2d-46.6523!3d-23.5617!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x0%3A0x0!2zMjPCsDMzJzQyLjEiUyA0NsKwMzknMDguMyJX!5e0!3m2!1spt-BR!2sbr!4v1620000000000!5m2!1spt-BR!2sbr" 
+            src= "https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d14661.61270483995!2d-46.60360014703327!3d-23.26479561407258!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x94ceec0c06dee097%3A0xf5d1a3fd5cf68533!2sTerra%20Preta%2C%20Mairipor%C3%A3%20-%20SP%2C%2007600-000!5e0!3m2!1spt-BR!2sbr!4v1773431066838!5m2!1spt-BR!2sbr"
             width="100%" 
             height="100%" 
             style={{ border: 0 }} 

@@ -15,7 +15,7 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
-  // Esse pedaço de código serve para conferir se o usuário está logado de verdade usando um "token" (tipo uma chave digital)
+  //confere se o usuario ta logado
   const authenticateToken = (req: any, res: any, next: any) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -29,7 +29,7 @@ async function startServer() {
     });
   };
 
-  // Aqui a gente checa se o usuário é um administrador, pra não deixar qualquer um mexer onde não deve
+  //checa se o usuario é adm
   const isAdmin = (req: any, res: any, next: any) => {
     if (req.user && req.user.role === 'admin') {
       next();
@@ -38,12 +38,12 @@ async function startServer() {
     }
   };
 
-  // Rotas da API - são os endereços que o site usa para conversar com o servidor
+  //rotgas da api
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
 
-  // Rotas de Autenticação - tudo que tem a ver com entrar no site ou criar conta
+  // rotas de autenticacao
   app.post("/api/auth/register", async (req, res) => {
     const { nome, sobrenome, email, senha, telefone, data_nascimento, genero } = req.body;
     
@@ -73,7 +73,7 @@ async function startServer() {
     res.json({ token, user: { id: user.id, nome: user.nome, email: user.email, role: user.role } });
   });
 
-  // Rotas dos Pets - aqui é onde a gente mexe com a lista de bichinhos
+  //rotas para manipular os animais
   app.get("/api/pets", (req, res) => {
     const pets = db.prepare("SELECT * FROM pets ORDER BY created_at DESC").all();
     res.json(pets);
@@ -104,7 +104,7 @@ async function startServer() {
     res.json({ message: "Pet removido com sucesso!" });
   });
 
-  // Rotas das Raças - pra organizar as raças de cães e gatos
+  //racas
   app.get("/api/breeds", (req, res) => {
     const breeds = db.prepare("SELECT * FROM breeds ORDER BY name ASC").all();
     res.json(breeds);
@@ -126,7 +126,7 @@ async function startServer() {
     res.json({ message: "Raça removida com sucesso!" });
   });
 
-  // Rotas dos Eventos - pra gente saber quando vai ter feirinha de adoção e tal
+  //rotas de eventos
   app.get("/api/events", (req, res) => {
     const events = db.prepare("SELECT * FROM events ORDER BY data ASC").all();
     res.json(events);
@@ -151,7 +151,7 @@ async function startServer() {
     res.json({ message: "Evento removido com sucesso!" });
   });
 
-  // Rotas dos Voluntários - pra guardar quem quer ajudar a ONG
+  //rotas de voluntarios
   app.post("/api/voluntarios", (req, res) => {
     const { nome, email, telefone, area_interesse, disponibilidade, mensagem } = req.body;
     const stmt = db.prepare("INSERT INTO voluntarios (nome, email, telefone, area_interesse, disponibilidade, mensagem) VALUES (?, ?, ?, ?, ?, ?)");
@@ -170,7 +170,7 @@ async function startServer() {
     res.json({ message: "Status do voluntário atualizado!" });
   });
 
-  // Rotas das Denúncias - pra gente receber avisos de maus tratos
+  //rotas de denuncias
   app.post("/api/denuncias", (req, res) => {
     const { tipo, descricao, localizacao, contato, anonimo } = req.body;
     const stmt = db.prepare("INSERT INTO denuncias (tipo, descricao, localizacao, contato, anonimo) VALUES (?, ?, ?, ?, ?)");
@@ -183,14 +183,14 @@ async function startServer() {
     res.json(denuncias);
   });
 
-  // Perfil do Usuário - pra mostrar os dados de quem está logado
+  //rotas de perfil do usuario
   app.get("/api/auth/profile", authenticateToken, (req: any, res) => {
     const user = db.prepare("SELECT id, nome, sobrenome, email, telefone, role, created_at FROM users WHERE id = ?").get(req.user.id);
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
     res.json(user);
   });
 
-  // Configuração do Vite - isso aqui ajuda a gente a ver as mudanças no site na hora enquanto estamos programando
+  //config do vite pra ver as mudancas em tempo real
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },

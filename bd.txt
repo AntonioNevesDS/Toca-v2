@@ -1,0 +1,1 @@
+INSERT INTO pets values(nome, tipo, raca, porte, idade, cor, pelo, sexo, imagemUrl, status)()

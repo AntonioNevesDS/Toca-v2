@@ -17,13 +17,13 @@ export default function Footer() {
             Nossa missão é dar uma segunda chance para cada peludo encontrar um lar cheio de amor.
           </p>
           <div className="flex gap-4">
-            <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+            <a href="https://www.instagram.com/toca_dos_peludos/" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
               <Instagram size={20} />
             </a>
-            <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+            <a href="#https://www.facebook.com/tocadospeludos/?locale=pt_BR" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
               <Facebook size={20} />
             </a>
-            <a href="#" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
+            <a href="#" target="_blank" className="bg-white/10 p-2 rounded-full hover:bg-white/20 transition-colors">
               <MessageCircle size={20} />
             </a>
           </div>

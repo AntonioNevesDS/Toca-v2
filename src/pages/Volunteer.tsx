@@ -121,10 +121,10 @@ export default function Volunteer() {
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-bold text-gray-700">Telefone / WhatsApp</label>
+                <label type="number" className="text-sm font-bold text-gray-700">Telefone / WhatsApp</label>
                 <input
                   required
-                  type="tel"
+                  type="number"
                   value={formData.telefone}
                   onChange={(e) => setFormData({...formData, telefone: e.target.value})}
                   className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
