@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { LayoutDashboard, PawPrint, ShieldAlert, Users, Plus, Trash2, CheckCircle, Clock, X, Calendar, Mail, Phone, MapPin } from 'lucide-react';
+import { LayoutDashboard, PawPrint, ShieldAlert, Users, Plus, Trash2, CheckCircle, Clock, X, Calendar, Mail, Phone, MapPin, Pencil } from 'lucide-react';
 import { User, Pet, Denuncia, Event, Voluntario } from '../types';
 import { api } from '../services/api';
 import { useNavigate } from 'react-router-dom';
@@ -18,6 +18,9 @@ export default function Admin({ user }: AdminProps) {
   const [breeds, setBreeds] = useState<{ id: number; name: string; type: string }[]>([]);
   const [loading, setLoading] = useState(true);
   const [isPetModalOpen, setIsPetModalOpen] = useState(false);
+  const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+  const [petToDelete, setPetToDelete] = useState<Pet | null>(null);
+  const [editingPetId, setEditingPetId] = useState<number | null>(null);
   const [isEventModalOpen, setIsEventModalOpen] = useState(false);
   const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
   const navigate = useNavigate();
@@ -69,8 +72,13 @@ export default function Admin({ user }: AdminProps) {
   const handleAddPet = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await api.createPet(newPet, user!.token!);
+      if (editingPetId) {
+        await api.updatePet(editingPetId, newPet, user!.token!);
+      } else {
+        await api.createPet(newPet, user!.token!);
+      }
       setIsPetModalOpen(false);
+      setEditingPetId(null);
       setNewPet({ 
         nome: '', tipo: 'Cachorro', raca: 'Vira-lata (SRD)', porte: 'Médio', idade: 'Adulto', 
         cor: '', pelo: 'Curto', sexo: 'Macho',
@@ -79,8 +87,26 @@ export default function Admin({ user }: AdminProps) {
       const updatedPets = await api.getPets();
       setPets(updatedPets);
     } catch (err) {
-      alert('Erro ao cadastrar pet');
+      alert(editingPetId ? 'Erro ao atualizar pet' : 'Erro ao cadastrar pet');
     }
+  };
+
+  const handleEditPetClick = (pet: Pet) => {
+    setNewPet({
+      nome: pet.nome,
+      tipo: pet.tipo,
+      raca: pet.raca,
+      porte: pet.porte,
+      idade: pet.idade,
+      cor: pet.cor || '',
+      pelo: pet.pelo,
+      sexo: pet.sexo,
+      descricao: pet.descricao,
+      imagemUrl: pet.imagemUrl,
+      status: pet.status
+    });
+    setEditingPetId(pet.id);
+    setIsPetModalOpen(true);
   };
 
   const handleAddBreed = async (e: React.FormEvent) => {
@@ -118,6 +144,35 @@ export default function Admin({ user }: AdminProps) {
     } catch (err) {
       alert('Erro ao cadastrar evento');
     }
+  };
+
+  const handleTogglePetStatus = async (pet: Pet) => {
+    const newStatus = pet.status === 'Disponível' ? 'Adotado' : 'Disponível';
+    try {
+      await api.updatePet(pet.id, { ...pet, status: newStatus }, user!.token!);
+      const updatedPets = await api.getPets();
+      setPets(updatedPets);
+    } catch (err) {
+      alert('Erro ao atualizar status do pet');
+    }
+  };
+
+  const handleDeletePet = async () => {
+    if (!petToDelete) return;
+    try {
+      await api.deletePet(petToDelete.id, user!.token!);
+      const updatedPets = await api.getPets();
+      setPets(updatedPets);
+      setIsDeleteModalOpen(false);
+      setPetToDelete(null);
+    } catch (err) {
+      alert('Erro ao excluir pet');
+    }
+  };
+
+  const confirmDeletePet = (pet: Pet) => {
+    setPetToDelete(pet);
+    setIsDeleteModalOpen(true);
   };
 
   if (!user || user.role !== 'admin') return null;
@@ -275,14 +330,33 @@ export default function Admin({ user }: AdminProps) {
                       <td className="py-4 px-4 font-bold text-[#18212f]">{pet.nome}</td>
                       <td className="py-4 px-4 text-gray-500">{pet.tipo} - {pet.raca}</td>
                       <td className="py-4 px-4">
-                        <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                          pet.status === 'Disponível' ? 'bg-green-50 text-green-700' : 'bg-orange-50 text-orange-700'
-                        }`}>
+                        <button 
+                          onClick={() => handleTogglePetStatus(pet)}
+                          className={`px-3 py-1 rounded-full text-xs font-bold transition-colors ${
+                            pet.status === 'Disponível' 
+                              ? 'bg-green-50 text-green-700 hover:bg-green-100' 
+                              : 'bg-orange-50 text-orange-700 hover:bg-orange-100'
+                          }`}
+                          title="Clique para alterar o status"
+                        >
                           {pet.status}
-                        </span>
+                        </button>
                       </td>
                       <td className="py-4 px-4 text-right space-x-2">
-                        <button className="p-2 text-red-600 hover:bg-red-50 rounded-lg"><Trash2 size={18} /></button>
+                        <button 
+                          onClick={() => handleEditPetClick(pet)}
+                          className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                          title="Editar Pet"
+                        >
+                          <Pencil size={18} />
+                        </button>
+                        <button 
+                          onClick={() => confirmDeletePet(pet)}
+                          className="p-2 text-red-600 hover:bg-red-50 rounded-lg"
+                          title="Excluir Pet"
+                        >
+                          <Trash2 size={18} />
+                        </button>
                       </td>
                     </tr>
                   ))}
@@ -366,9 +440,9 @@ export default function Admin({ user }: AdminProps) {
             >
               <div className="bg-[#7956a6] p-6 text-white flex justify-between items-center">
                 <h2 className="text-2xl font-bold flex items-center gap-2">
-                  <PawPrint /> Novo Pet para Adoção
+                  <PawPrint /> {editingPetId ? 'Editar Pet' : 'Novo Pet para Adoção'}
                 </h2>
-                <button onClick={() => setIsPetModalOpen(false)} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+                <button onClick={() => { setIsPetModalOpen(false); setEditingPetId(null); }} className="hover:bg-white/20 p-2 rounded-full transition-colors">
                   <X size={24} />
                 </button>
               </div>
@@ -464,6 +538,17 @@ export default function Admin({ user }: AdminProps) {
                     placeholder="Ex: Marrom e Branco"
                   />
                 </div>
+                <div className="space-y-2">
+                  <label className="text-sm font-bold text-gray-700">Status de Adoção</label>
+                  <select 
+                    value={newPet.status}
+                    onChange={e => setNewPet({...newPet, status: e.target.value})}
+                    className="w-full px-4 py-3 rounded-xl border border-gray-200 focus:ring-2 ring-[#7956a6] outline-none"
+                  >
+                    <option value="Disponível">Disponível</option>
+                    <option value="Adotado">Adotado</option>
+                  </select>
+                </div>
                 <div className="md:col-span-2 space-y-2">
                   <label className="text-sm font-bold text-gray-700">URL da Imagem</label>
                   <input 
@@ -486,10 +571,53 @@ export default function Admin({ user }: AdminProps) {
                 </div>
                 <div className="md:col-span-2 pt-4">
                   <button type="submit" className="w-full bg-[#7956a6] text-white py-4 rounded-xl font-bold text-lg hover:bg-[#6a1b9a] transition-colors">
-                    Cadastrar Pet
+                    {editingPetId ? 'Salvar Alterações' : 'Cadastrar Pet'}
                   </button>
                 </div>
               </form>
+            </motion.div>
+          </div>
+        )}
+      </AnimatePresence>
+
+      {/* Delete Confirmation Modal */}
+      <AnimatePresence>
+        {isDeleteModalOpen && (
+          <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
+            <motion.div
+              initial={{ scale: 0.9, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.9, opacity: 0 }}
+              className="bg-white rounded-3xl shadow-2xl w-full max-w-md overflow-hidden"
+            >
+              <div className="bg-red-600 p-6 text-white flex justify-between items-center">
+                <h2 className="text-xl font-bold flex items-center gap-2">
+                  <ShieldAlert /> Confirmar Exclusão
+                </h2>
+                <button onClick={() => setIsDeleteModalOpen(false)} className="hover:bg-white/20 p-2 rounded-full transition-colors">
+                  <X size={24} />
+                </button>
+              </div>
+              <div className="p-8 space-y-6">
+                <p className="text-gray-600 text-center text-lg">
+                  Deseja realmente excluir o pet <span className="font-bold text-[#18212f]">{petToDelete?.nome}</span>? 
+                  Esta ação não pode ser desfeita.
+                </p>
+                <div className="flex gap-4">
+                  <button 
+                    onClick={() => setIsDeleteModalOpen(false)}
+                    className="flex-1 px-6 py-3 rounded-xl font-bold text-gray-500 hover:bg-gray-100 transition-colors"
+                  >
+                    Cancelar
+                  </button>
+                  <button 
+                    onClick={handleDeletePet}
+                    className="flex-1 bg-red-600 text-white px-6 py-3 rounded-xl font-bold hover:bg-red-700 transition-colors"
+                  >
+                    Excluir
+                  </button>
+                </div>
+              </div>
             </motion.div>
           </div>
         )}

@@ -7,103 +7,10 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,400&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/css/style.css">
 </head>
 <body>
-    <nav class="navbar">
-        <div class="container">
-            <a href="/" class="logo">🐾 Toca dos Peludos</a>
-            <ul class="nav-links">
-                <li><a href="#pets">Adotar</a></li>
-                <li><a href="#eventos">Eventos</a></li>
-                <li><a href="#voluntario">Voluntariado</a></li>
-                <li><a href="#denuncia" class="btn-outline">Denunciar</a></li>
-            </ul>
-        </div>
-    </nav>
-
-    <header class="hero">
-        <div class="container">
-            <div class="hero-content">
-                <span class="badge">Amor em forma de patas</span>
-                <h1>Encontre um novo <br><em>melhor amigo</em> hoje.</h1>
-                <p>Somos uma ONG dedicada a resgatar, cuidar e encontrar lares amorosos para animais abandonados. Cada adoção é uma vida salva.</p>
-                <div class="hero-actions">
-                    <a href="#pets" class="btn-primary">Ver Animais</a>
-                    <a href="#sobre" class="btn-secondary">Nossa História</a>
-                </div>
-            </div>
-            <div class="hero-image">
-                <img src="https://images.unsplash.com/photo-1583511655857-d19b40a7a54e?auto=format&fit=crop&q=80&w=800" alt="Cachorro feliz" class="pill-image">
-            </div>
-        </div>
-    </header>
-
-    <section id="pets" class="section">
-        <div class="container">
-            <div class="section-header">
-                <h2 class="serif">Nossos Moradores</h2>
-                <p>Conheça os peludos que estão esperando por um lar.</p>
-            </div>
-            <div id="pet-grid" class="grid">
-                <div class="loading">Carregando amigos...</div>
-            </div>
-        </div>
-    </section>
-
-    <section id="voluntario" class="section bg-warm">
-        <div class="container split">
-            <div class="content">
-                <h2 class="serif">Seja um Voluntário</h2>
-                <p>Sua ajuda é fundamental para mantermos nosso trabalho. Doe seu tempo e carinho para quem mais precisa.</p>
-                <form id="volunteer-form" class="card">
-                    <div class="form-group">
-                        <label>Nome Completo</label>
-                        <input type="text" name="nome" required placeholder="Seu nome">
-                    </div>
-                    <div class="form-group">
-                        <label>E-mail</label>
-                        <input type="email" name="email" required placeholder="seu@email.com">
-                    </div>
-                    <div class="form-group">
-                        <label>Área de Interesse</label>
-                        <select name="area_interesse">
-                            <option value="cuidados">Cuidados Diretos</option>
-                            <option value="eventos">Eventos e Feiras</option>
-                            <option value="digital">Marketing Digital</option>
-                            <option value="transporte">Transporte</option>
-                        </select>
-                    </div>
-                    <button type="submit" class="btn-primary w-full">Enviar Inscrição</button>
-                </form>
-            </div>
-            <div class="image">
-                <img src="https://images.unsplash.com/photo-1591768793355-74d74b26c557?auto=format&fit=crop&q=80&w=600" alt="Voluntariado" class="rounded-32">
-            </div>
-        </div>
-    </section>
-
-    <footer class="footer">
-        <div class="container">
-            <div class="footer-grid">
-                <div class="footer-info">
-                    <h3 class="serif">Toca dos Peludos</h3>
-                    <p>Transformando vidas através da adoção responsável.</p>
-                </div>
-                <div class="footer-links">
-                    <h4>Links</h4>
-                    <a href="#">Privacidade</a>
-                    <a href="#">Termos de Uso</a>
-                    <a href="#">Admin</a>
-                </div>
-            </div>
-            <div class="footer-bottom">
-                <p>&copy; 2026 Toca dos Peludos. Feito com carinho.</p>
-            </div>
-        </div>
-    </footer>
-
-    <script type="module" src="/js/app.js"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
 </body>
 </html>
 

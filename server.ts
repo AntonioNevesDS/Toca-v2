@@ -4,7 +4,7 @@ import { createServer as createViteServer } from "vite";
 import cors from "cors";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
-import { db } from "./src/db/index.ts";
+import { db } from "./src/db/index";
 
 const JWT_SECRET = process.env.JWT_SECRET || "toca-dos-peludos-secret-key-2026";
 
@@ -100,7 +100,7 @@ async function startServer() {
   });
 
   app.delete("/api/pets/:id", authenticateToken, isAdmin, (req, res) => {
-    db.prepare("DELETE FROM pets WHERE id = ?").run(req.params.id);
+    db.prepare("DELETE FROM pets WHERE id = ?").run(Number(req.params.id));
     res.json({ message: "Pet removido com sucesso!" });
   });
 

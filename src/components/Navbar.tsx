@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
-import { Menu, X, PawPrint, Calendar, ShieldAlert, Phone, Info, Home as HomeIcon, LogIn, UserPlus, LogOut, LayoutDashboard, Heart } from 'lucide-react';
+import { Menu, X, PawPrint, Calendar, ShieldAlert, Phone, Info, Home as HomeIcon, LogIn, UserPlus, LogOut, LayoutDashboard, Heart, Users } from 'lucide-react';
 import { User } from '../types';
 
 interface NavbarProps {
@@ -18,6 +18,7 @@ export default function Navbar({ user, onLogout, onOpenDonation }: NavbarProps) 
     { name: 'Sobre', path: '/sobre', icon: Info },
     { name: 'Pets', path: '/pets', icon: PawPrint },
     { name: 'Eventos', path: '/eventos', icon: Calendar },
+    { name: 'Voluntário', path: '/voluntario', icon: Users },
     { name: 'Denúncias', path: '/denuncias', icon: ShieldAlert },
     { name: 'Contatos', path: '/contatos', icon: Phone },
   ];
