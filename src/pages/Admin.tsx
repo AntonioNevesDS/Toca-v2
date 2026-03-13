@@ -25,7 +25,7 @@ export default function Admin({ user }: AdminProps) {
   const [isBreedModalOpen, setIsBreedModalOpen] = useState(false);
   const navigate = useNavigate();
 
-  // Form states
+  // Estados dos formulários - aqui a gente guarda o que o usuário digita antes de salvar
   const [newPet, setNewPet] = useState({
     nome: '', tipo: 'Cachorro', raca: 'Vira-lata (SRD)', porte: 'Médio', idade: 'Adulto', 
     cor: '', pelo: 'Curto', sexo: 'Macho',
@@ -38,6 +38,7 @@ export default function Admin({ user }: AdminProps) {
     name: '', type: 'Cachorro'
   });
 
+  // Esse useEffect é como um vigia: toda vez que a página carrega, ele vai lá no servidor buscar todos os dados que a gente precisa mostrar
   useEffect(() => {
     if (!user || user.role !== 'admin') {
       navigate('/');
@@ -47,6 +48,7 @@ export default function Admin({ user }: AdminProps) {
     const fetchData = async () => {
       setLoading(true);
       try {
+        // Aqui a gente chama várias coisas ao mesmo tempo pra ser mais rápido
         const [petsData, denunciasData, voluntariosData, eventosData, breedsData] = await Promise.all([
           api.getPets(),
           api.getDenuncias(user.token!),
@@ -60,7 +62,7 @@ export default function Admin({ user }: AdminProps) {
         setEventos(eventosData);
         setBreeds(breedsData);
       } catch (err) {
-        console.error(err);
+        console.error("Ih, deu erro ao buscar os dados:", err);
       } finally {
         setLoading(false);
       }
@@ -69,21 +71,26 @@ export default function Admin({ user }: AdminProps) {
     fetchData();
   }, [user, navigate]);
 
+  // Essa função serve tanto pra criar um pet novo quanto pra editar um que já existe
   const handleAddPet = async (e: React.FormEvent) => {
-    e.preventDefault();
+    e.preventDefault(); // Isso aqui evita que a página recarregue sozinha
     try {
       if (editingPetId) {
+        // Se tem um ID, é porque estamos editando
         await api.updatePet(editingPetId, newPet, user!.token!);
       } else {
+        // Se não tem ID, é um pet novinho em folha
         await api.createPet(newPet, user!.token!);
       }
-      setIsPetModalOpen(false);
-      setEditingPetId(null);
+      setIsPetModalOpen(false); // Fecha a janelinha
+      setEditingPetId(null); // Limpa o ID de edição
+      // Limpa o formulário pra ficar vazio de novo
       setNewPet({ 
         nome: '', tipo: 'Cachorro', raca: 'Vira-lata (SRD)', porte: 'Médio', idade: 'Adulto', 
         cor: '', pelo: 'Curto', sexo: 'Macho',
         descricao: '', imagemUrl: '', status: 'Disponível' 
       });
+      // Atualiza a lista pra mostrar o que mudou
       const updatedPets = await api.getPets();
       setPets(updatedPets);
     } catch (err) {
@@ -91,6 +98,7 @@ export default function Admin({ user }: AdminProps) {
     }
   };
 
+  // Essa função abre a janelinha de edição e já preenche os campos com os dados do bichinho
   const handleEditPetClick = (pet: Pet) => {
     setNewPet({
       nome: pet.nome,
@@ -105,10 +113,11 @@ export default function Admin({ user }: AdminProps) {
       imagemUrl: pet.imagemUrl,
       status: pet.status
     });
-    setEditingPetId(pet.id);
-    setIsPetModalOpen(true);
+    setEditingPetId(pet.id); // Guarda o ID pra gente saber qual pet estamos editando
+    setIsPetModalOpen(true); // Abre a janelinha
   };
 
+  // Adiciona uma nova raça na lista de opções
   const handleAddBreed = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -122,6 +131,7 @@ export default function Admin({ user }: AdminProps) {
     }
   };
 
+  // Apaga uma raça da lista (só o admin pode fazer isso)
   const handleDeleteBreed = async (id: number) => {
     if (!confirm('Deseja realmente excluir esta raça?')) return;
     try {
@@ -133,6 +143,7 @@ export default function Admin({ user }: AdminProps) {
     }
   };
 
+  // Cria um novo evento que vai aparecer na página inicial
   const handleAddEvent = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
@@ -146,6 +157,7 @@ export default function Admin({ user }: AdminProps) {
     }
   };
 
+  // Muda o status do pet de "Disponível" para "Adotado" e vice-versa rapidinho
   const handleTogglePetStatus = async (pet: Pet) => {
     const newStatus = pet.status === 'Disponível' ? 'Adotado' : 'Disponível';
     try {
@@ -157,19 +169,21 @@ export default function Admin({ user }: AdminProps) {
     }
   };
 
+  // Essa é a função que apaga o pet de verdade depois que a pessoa confirma
   const handleDeletePet = async () => {
     if (!petToDelete) return;
     try {
       await api.deletePet(petToDelete.id, user!.token!);
       const updatedPets = await api.getPets();
       setPets(updatedPets);
-      setIsDeleteModalOpen(false);
-      setPetToDelete(null);
+      setIsDeleteModalOpen(false); // Fecha a janelinha de confirmação
+      setPetToDelete(null); // Limpa o pet que ia ser apagado
     } catch (err) {
       alert('Erro ao excluir pet');
     }
   };
 
+  // Só prepara o terreno pra mostrar a janelinha de confirmação de exclusão
   const confirmDeletePet = (pet: Pet) => {
     setPetToDelete(pet);
     setIsDeleteModalOpen(true);
@@ -208,7 +222,7 @@ export default function Admin({ user }: AdminProps) {
         </div>
       </div>
 
-      {/* Stats */}
+      {/* Estatísticas - esses quadradinhos mostram os números gerais da ONG */}
       <div className="grid grid-cols-1 sm:grid-cols-4 gap-6">
         <div className="bg-white p-6 rounded-3xl shadow-sm border border-gray-100 flex items-center gap-6">
           <div className="bg-[#FFCC00]/20 p-4 rounded-2xl">
@@ -251,7 +265,7 @@ export default function Admin({ user }: AdminProps) {
         </div>
       </div>
 
-      {/* Tabs */}
+      {/* Abas - pra gente navegar entre Pets, Denúncias, etc. */}
       <div className="bg-white rounded-3xl shadow-sm border border-gray-100 overflow-hidden">
         <div className="flex border-b border-gray-100 overflow-x-auto">
           {[
@@ -428,7 +442,7 @@ export default function Admin({ user }: AdminProps) {
         </div>
       </div>
 
-      {/* Pet Modal */}
+      {/* Janelinha do Pet - o formulário que abre pra cadastrar ou editar um bichinho */}
       <AnimatePresence>
         {isPetModalOpen && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -580,7 +594,7 @@ export default function Admin({ user }: AdminProps) {
         )}
       </AnimatePresence>
 
-      {/* Delete Confirmation Modal */}
+      {/* Janelinha de Confirmação - pra ter certeza que a pessoa quer mesmo apagar um pet */}
       <AnimatePresence>
         {isDeleteModalOpen && (
           <div className="fixed inset-0 z-[70] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -623,7 +637,7 @@ export default function Admin({ user }: AdminProps) {
         )}
       </AnimatePresence>
 
-      {/* Breed Modal */}
+      {/* Janelinha da Raça - pra adicionar novas raças na lista */}
       <AnimatePresence>
         {isBreedModalOpen && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">
@@ -672,7 +686,7 @@ export default function Admin({ user }: AdminProps) {
         )}
       </AnimatePresence>
 
-      {/* Event Modal */}
+      {/* Janelinha do Evento - pra criar novos eventos no site */}
       <AnimatePresence>
         {isEventModalOpen && (
           <div className="fixed inset-0 z-[60] flex items-center justify-center p-4 bg-black/50 backdrop-blur-sm">

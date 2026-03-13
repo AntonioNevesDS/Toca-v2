@@ -15,7 +15,7 @@ async function startServer() {
   app.use(cors());
   app.use(express.json());
 
-  // Middleware to verify JWT
+  // Esse pedaço de código serve para conferir se o usuário está logado de verdade usando um "token" (tipo uma chave digital)
   const authenticateToken = (req: any, res: any, next: any) => {
     const authHeader = req.headers['authorization'];
     const token = authHeader && authHeader.split(' ')[1];
@@ -29,7 +29,7 @@ async function startServer() {
     });
   };
 
-  // Middleware to check admin role
+  // Aqui a gente checa se o usuário é um administrador, pra não deixar qualquer um mexer onde não deve
   const isAdmin = (req: any, res: any, next: any) => {
     if (req.user && req.user.role === 'admin') {
       next();
@@ -38,12 +38,12 @@ async function startServer() {
     }
   };
 
-  // API Routes
+  // Rotas da API - são os endereços que o site usa para conversar com o servidor
   app.get("/api/health", (req, res) => {
     res.json({ status: "ok" });
   });
 
-  // Auth Routes
+  // Rotas de Autenticação - tudo que tem a ver com entrar no site ou criar conta
   app.post("/api/auth/register", async (req, res) => {
     const { nome, sobrenome, email, senha, telefone, data_nascimento, genero } = req.body;
     
@@ -73,7 +73,7 @@ async function startServer() {
     res.json({ token, user: { id: user.id, nome: user.nome, email: user.email, role: user.role } });
   });
 
-  // Pets Routes
+  // Rotas dos Pets - aqui é onde a gente mexe com a lista de bichinhos
   app.get("/api/pets", (req, res) => {
     const pets = db.prepare("SELECT * FROM pets ORDER BY created_at DESC").all();
     res.json(pets);
@@ -104,7 +104,7 @@ async function startServer() {
     res.json({ message: "Pet removido com sucesso!" });
   });
 
-  // Breeds Routes
+  // Rotas das Raças - pra organizar as raças de cães e gatos
   app.get("/api/breeds", (req, res) => {
     const breeds = db.prepare("SELECT * FROM breeds ORDER BY name ASC").all();
     res.json(breeds);
@@ -126,7 +126,7 @@ async function startServer() {
     res.json({ message: "Raça removida com sucesso!" });
   });
 
-  // Events Routes
+  // Rotas dos Eventos - pra gente saber quando vai ter feirinha de adoção e tal
   app.get("/api/events", (req, res) => {
     const events = db.prepare("SELECT * FROM events ORDER BY data ASC").all();
     res.json(events);
@@ -151,7 +151,7 @@ async function startServer() {
     res.json({ message: "Evento removido com sucesso!" });
   });
 
-  // Voluntarios Routes
+  // Rotas dos Voluntários - pra guardar quem quer ajudar a ONG
   app.post("/api/voluntarios", (req, res) => {
     const { nome, email, telefone, area_interesse, disponibilidade, mensagem } = req.body;
     const stmt = db.prepare("INSERT INTO voluntarios (nome, email, telefone, area_interesse, disponibilidade, mensagem) VALUES (?, ?, ?, ?, ?, ?)");
@@ -170,7 +170,7 @@ async function startServer() {
     res.json({ message: "Status do voluntário atualizado!" });
   });
 
-  // Denuncias Routes
+  // Rotas das Denúncias - pra gente receber avisos de maus tratos
   app.post("/api/denuncias", (req, res) => {
     const { tipo, descricao, localizacao, contato, anonimo } = req.body;
     const stmt = db.prepare("INSERT INTO denuncias (tipo, descricao, localizacao, contato, anonimo) VALUES (?, ?, ?, ?, ?)");
@@ -183,14 +183,14 @@ async function startServer() {
     res.json(denuncias);
   });
 
-  // User Profile
+  // Perfil do Usuário - pra mostrar os dados de quem está logado
   app.get("/api/auth/profile", authenticateToken, (req: any, res) => {
     const user = db.prepare("SELECT id, nome, sobrenome, email, telefone, role, created_at FROM users WHERE id = ?").get(req.user.id);
     if (!user) return res.status(404).json({ error: "Usuário não encontrado" });
     res.json(user);
   });
 
-  // Vite middleware for development
+  // Configuração do Vite - isso aqui ajuda a gente a ver as mudanças no site na hora enquanto estamos programando
   if (process.env.NODE_ENV !== "production") {
     const vite = await createViteServer({
       server: { middlewareMode: true },
